@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name         Userscript starter
+// @name         CMS Messages/Settings Template Generator
 // @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  Creates a new userscript
+// @version      2024-02-15
+// @description  try to take over the world!
 // @author       Łukasz Brzózko
-// @match        https://github.com/
-// @icon         https://github.githubassets.com/favicons/favicon.png
-// @updateURL    https://raw.githubusercontent.com/lukasz-brzozko/userscript-starter/main/dist/index.meta.js
-// @downloadURL  https://raw.githubusercontent.com/lukasz-brzozko/userscript-starter/main/dist/index.user.js
+// @match        https://dev-control-panel-orbico.nd0.pl/*
+// @match        https://uat-control-panel-orbico.nd0.pl/*
+// @match        https://preprod-control-panel-orbico.nd0.pl/*
+// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // ==/UserScript==
