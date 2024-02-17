@@ -13,10 +13,31 @@
 (function () {
   "use strict";
 
+  const SELECTORS = {
+    rowCheckbox: ".js-jira-checkbox",
+    keyInput: "input[ng-reflect-name='key']",
+    valueInput: "input[ng-reflect-name='value']",
+    messagesRow: ".input-container > div[formarrayname='messages']",
+    settingsRow: ".input-container > div[formarrayname='settings']",
+    inputRow: ".input-container > div[formarrayname] > .input-row",
+    inputRowContainer: "input-container custom-fields ng-star-inserted",
+    componentName: "span.mat-select-value-text > span",
+    buttonContainer: "scp-clipboard > .alignRight",
+  };
+
+  const CLASSNAMES = {
+    rowCheckbox: "mat-checkbox-inner-container mat-checkbox js-jira-checkbox",
+    generateButton: "btn-black btn-small ico-btn",
+  };
+
+  const COLOR_PRIMARY = "#0747a6";
+  const MAT_DIALOG_CONTAINER = "MAT-DIALOG-CONTAINER";
+
   let modal = null;
 
   const debounce = (callback, wait) => {
     let timeoutId = null;
+
     return (...args) => {
       window.clearTimeout(timeoutId);
       timeoutId = window.setTimeout(() => {
@@ -32,16 +53,13 @@
     if (!configsEls?.length) return string;
 
     configsEls.forEach((configsEl) => {
-      const checkbox = configsEl.querySelector(".js-jira-checkbox");
+      const checkbox = configsEl.querySelector(SELECTORS.rowCheckbox);
 
       if (!checkbox.checked) return content;
 
-      const key = configsEl.querySelector(
-        "input[ng-reflect-name='key']"
-      )?.value;
-      const value = configsEl.querySelector(
-        "input[ng-reflect-name='value']"
-      )?.value;
+      const key = configsEl.querySelector(SELECTORS.keyInput)?.value;
+      const value = configsEl.querySelector(SELECTORS.valueInput)?.value;
+
       content += `<li><strong>${key}</strong>: ${value}</li>`;
     });
 
@@ -52,15 +70,12 @@
     return string;
   };
 
-  const prepareJiraTemplate = ({ componentName }) => {
-    const messages = modal.querySelectorAll(
-      ".input-container > div[formarrayname='messages']"
-    );
-    const settings = modal.querySelectorAll(
-      ".input-container > div[formarrayname='settings']"
-    );
+  const prepareHtmlTemplate = ({ componentName }) => {
+    const messages = modal.querySelectorAll(SELECTORS.messagesRow);
+    const settings = modal.querySelectorAll(SELECTORS.settingsRow);
 
     let messageText = `<span><strong>${componentName}</strong> box:</span>`;
+
     messageText += createMessage(messages, "messages");
     messageText += createMessage(settings, "settings");
 
@@ -70,17 +85,16 @@
   const addCheckboxes = () => {
     if (!modal) return;
 
-    const rows = modal.querySelectorAll(
-      ".input-container > div[formarrayname] > .input-row"
-    );
+    const rows = modal.querySelectorAll(SELECTORS.inputRow);
 
     rows.forEach((row) => {
       const input = document.createElement("input");
+
       input.type = "checkbox";
       input.checked = true;
-      input.className =
-        "mat-checkbox-inner-container mat-checkbox js-jira-checkbox";
-      input.style.accentColor = "#0747a6";
+      input.className = CLASSNAMES.rowCheckbox;
+      input.style.accentColor = COLOR_PRIMARY;
+
       row.prepend(input);
     });
   };
@@ -90,74 +104,73 @@
     addCheckboxes();
   }, 1000);
 
-  const handleBtnClick = async (target) => {
-    const componentName = target.querySelector(
-      "span.mat-select-value-text>span"
-    ).textContent;
-
-    const jiraTemplate = prepareJiraTemplate({ componentName });
-
+  const setClipboard = (content) => {
     const clipboardItem = new ClipboardItem({
-      "text/plain": new Blob([jiraTemplate], {
+      "text/plain": new Blob([content], {
         type: "text/plain",
       }),
-      "text/html": new Blob([jiraTemplate], {
+      "text/html": new Blob([content], {
         type: "text/html",
       }),
     });
 
-    await navigator.clipboard.write([clipboardItem]);
+    return navigator.clipboard.write([clipboardItem]);
+  };
+
+  const handleBtnClick = async (target) => {
+    const componentName = target.querySelector(SELECTORS.componentName)?.textContent;
+
+    const htmlTemplate = prepareHtmlTemplate({
+      componentName,
+    });
+
+    await setClipboard(htmlTemplate);
   };
 
   const addButton = ({ target }) => {
     const button = document.createElement("button");
+
     button.textContent = "Generate Jira manual";
     button.type = "button";
-    button.className = "btn-black btn-small ico-btn";
-    button.style.backgroundColor = "#0747a6";
-    target.querySelector("scp-clipboard > .alignRight")?.appendChild(button);
+    button.className = CLASSNAMES.generateButton;
+    button.style.backgroundColor = COLOR_PRIMARY;
+
+    target.querySelector(SELECTORS.buttonContainer)?.appendChild(button);
 
     button.addEventListener("click", () => handleBtnClick(target));
   };
 
   const addBodyObserver = () => {
-    // Options for the observer (which mutations to observe)
-    const config = { attributes: false, childList: true, subtree: true };
+    const config = {
+      attributes: false,
+      childList: true,
+      subtree: true,
+    };
 
-    // Callback function to execute when mutations are observed
     const callback = (entries) => {
       entries.forEach((entry) => {
-        if (
-          entry.target.nodeName !== "MAT-DIALOG-CONTAINER" &&
-          entry.target.className !==
-            "input-container custom-fields ng-star-inserted"
-        ) {
-          return;
-        }
-        // console.log(entry.target);
-        if (entry.target.nodeName === "MAT-DIALOG-CONTAINER") {
+        const { target } = entry;
+        const { nodeName, className } = target;
+        const isDialogContainer = nodeName === MAT_DIALOG_CONTAINER;
+        const isInputRowContainer = className === SELECTORS.inputRowContainer;
+
+        if (!isDialogContainer && !isInputRowContainer) return;
+
+        if (isDialogContainer) {
           modal = entry.target;
           addButton(entry);
-        } else if (
-          entry.target.className ===
-          "input-container custom-fields ng-star-inserted"
-        ) {
-          console.log(entry);
+        } else if (isInputRowContainer) {
           addCheckboxesDebounced(entry.target);
         }
       });
     };
 
-    // Create an observer instance linked to the callback function
     const observer = new MutationObserver(callback);
 
-    // Start observing the target node for configured mutations
     observer.observe(document.body, config);
   };
 
-  const init = () => {
-    addBodyObserver();
-  };
+  const init = () => addBodyObserver();
 
   init();
 })();
