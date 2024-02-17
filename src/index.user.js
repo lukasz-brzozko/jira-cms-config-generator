@@ -14,7 +14,7 @@
   "use strict";
 
   const SELECTORS = {
-    rowCheckbox: ".js-jira-checkbox",
+    rowCheckbox: ".js-generate-html-checkbox",
     keyInput: "input[ng-reflect-name='key']",
     valueInput: "input[ng-reflect-name='value']",
     messagesRow: ".input-container > div[formarrayname='messages']",
@@ -26,8 +26,9 @@
   };
 
   const CLASSNAMES = {
-    rowCheckbox: "mat-checkbox-inner-container mat-checkbox js-jira-checkbox",
-    generateButton: "btn-black btn-small ico-btn",
+    rowCheckbox: "mat-checkbox-inner-container mat-checkbox js-generate-html-checkbox",
+    generateButton: "btn-black btn-small ico-btn generate-html-btn",
+    active: "custom-active",
   };
 
   const COLOR_PRIMARY = "#0747a6";
@@ -44,6 +45,47 @@
         callback(...args);
       }, wait);
     };
+  };
+
+  const addStyles = () => {
+    const styles = `
+    .generate-html-btn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .generate-html-btn > .standard-text,
+    .generate-html-btn > .active-text {
+      display: inline-block;
+      transition: transform 0.15s ease;
+    }
+
+    .generate-html-btn > .standard-text {
+      transform: translateY(0);
+    }
+
+    .generate-html-btn > .active-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      max-width: 100%;
+      transform: translate(-50%, calc(-50% + 23.66px));
+    }
+
+    .generate-html-btn.custom-active {
+      pointer-events: none;
+    }
+    
+    .generate-html-btn.custom-active > .standard-text {
+      transform: translateY(-23.66px);
+    }
+
+    .generate-html-btn.custom-active > .active-text {
+      transform: translate(-50%, -50%);
+    }
+`;
+
+    document.head.insertAdjacentHTML("beforeend", `<style>${styles}</style>`);
   };
 
   const createMessage = (configsEls, name) => {
@@ -103,10 +145,7 @@
     });
   };
 
-  const addCheckboxesDebounced = debounce(() => {
-    console.log("addCheckboxesDebounced");
-    addCheckboxes();
-  }, 1000);
+  const addCheckboxesDebounced = debounce(addCheckboxes, 1000);
 
   const setClipboard = (content) => {
     const clipboardItem = new ClipboardItem({
@@ -121,27 +160,33 @@
     return navigator.clipboard.write([clipboardItem]);
   };
 
-  const handleBtnClick = async (target) => {
+  const setActiveClassname = (element) => {
+    element.classList.add(CLASSNAMES.active);
+    setTimeout(() => element.classList.remove(CLASSNAMES.active), 2000);
+  };
+
+  const handleBtnClick = async ({ e, target }) => {
+    const { currentTarget } = e;
     const componentName = target.querySelector(SELECTORS.componentName)?.textContent;
 
     const htmlTemplate = prepareHtmlTemplate({
       componentName,
     });
-
     await setClipboard(htmlTemplate);
+    setActiveClassname(currentTarget);
   };
 
   const addButton = ({ target }) => {
     const button = document.createElement("button");
 
-    button.textContent = "Generate Jira manual";
+    button.innerHTML = `<span class="standard-text">Generate Jira manual</span><span class="active-text">Copied</span>`;
     button.type = "button";
     button.className = CLASSNAMES.generateButton;
     button.style.backgroundColor = COLOR_PRIMARY;
 
     target.querySelector(SELECTORS.buttonContainer)?.appendChild(button);
 
-    button.addEventListener("click", () => handleBtnClick(target));
+    button.addEventListener("click", (e) => handleBtnClick({ e, target }));
   };
 
   const addBodyObserver = () => {
@@ -174,7 +219,10 @@
     observer.observe(document.body, config);
   };
 
-  const init = () => addBodyObserver();
+  const init = () => {
+    addStyles();
+    addBodyObserver();
+  };
 
   init();
 })();
