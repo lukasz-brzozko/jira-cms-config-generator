@@ -25,15 +25,16 @@
     };
   };
 
-  const createMessage = (configsEls) => {
+  const createMessage = (configsEls, name) => {
     let string = "";
+    let content = "";
 
-    if (!configsEls?.length) return "";
+    if (!configsEls?.length) return string;
 
     configsEls.forEach((configsEl) => {
       const checkbox = configsEl.querySelector(".js-jira-checkbox");
 
-      if (!checkbox.checked) return string;
+      if (!checkbox.checked) return content;
 
       const key = configsEl.querySelector(
         "input[ng-reflect-name='key']"
@@ -41,8 +42,12 @@
       const value = configsEl.querySelector(
         "input[ng-reflect-name='value']"
       )?.value;
-      string += `<li><strong>${key}</strong>: ${value}</li>`;
+      content += `<li><strong>${key}</strong>: ${value}</li>`;
     });
+
+    if (content) {
+      string = `<ul><li>Add ${name}:<ul>${content}</ul></li></ul>`;
+    }
 
     return string;
   };
@@ -56,12 +61,8 @@
     );
 
     let messageText = `<span><strong>${componentName}</strong> box:</span>`;
-    messageText += `<ul><li>Add messages:<ul>`;
     messageText += createMessage(messages, "messages");
-    messageText += `</ul></li></ul>`;
-    messageText += `<ul><li>Add settings:<ul>`;
     messageText += createMessage(settings, "settings");
-    messageText += `</ul></li></ul>`;
 
     return messageText;
   };
