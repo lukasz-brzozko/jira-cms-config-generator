@@ -88,6 +88,10 @@
     const rows = modal.querySelectorAll(SELECTORS.inputRow);
 
     rows.forEach((row) => {
+      const existingCheckbox = row.querySelector(SELECTORS.rowCheckbox);
+
+      if (existingCheckbox) return;
+
       const input = document.createElement("input");
 
       input.type = "checkbox";
