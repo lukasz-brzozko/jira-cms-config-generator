@@ -12,5 +12,8 @@
     ],
     "parserOptions": {
         "ecmaVersion": "latest"
-    }
+    },
+    "ignorePatterns": [
+        "dist/**"
+    ]
 }
