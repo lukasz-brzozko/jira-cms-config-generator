@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CMS Messages/Settings Template Generator
 // @namespace    https://github.com/lukasz-brzozko/jira-cms-config-generator
-// @version      2024-02-17
+// @version      2024-02-19
 // @description  Generates HTML template from the CMS messages/settings and copies it into the clipboard
 // @author       Łukasz Brzózko
 // @match        https://dev-control-panel-orbico.nd0.pl/*

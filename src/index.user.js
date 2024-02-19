@@ -76,6 +76,15 @@
     document.head.insertAdjacentHTML("beforeend", `<style>${styles}</style>`);
   };
 
+  const escapeHtml = (unsafe) => {
+    return unsafe
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  };
+
   const createMessage = (configsEls, name) => {
     let string = "";
     let content = "";
@@ -90,7 +99,7 @@
       const key = configsEl.querySelector(SELECTORS.keyInput)?.value;
       const value = configsEl.querySelector(SELECTORS.valueInput)?.value;
 
-      content += `<li><strong>${key}</strong>: ${value}</li>`;
+      content += `<li><strong>${key}</strong>: ${escapeHtml(value)}</li>`;
     });
 
     if (content) {

@@ -5,7 +5,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // ==UserScript==
 // @name         CMS Messages/Settings Template Generator
 // @namespace    https://github.com/lukasz-brzozko/jira-cms-config-generator
-// @version      2024-02-17
+// @version      2024-02-19
 // @description  Generates HTML template from the CMS messages/settings and copies it into the clipboard
 // @author       Łukasz Brzózko
 // @match        https://dev-control-panel-orbico.nd0.pl/*
@@ -54,6 +54,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var styles = "\n    .generate-html-btn {\n      position: relative;\n      overflow: hidden;\n    }\n\n    .generate-html-btn > .standard-text,\n    .generate-html-btn > .active-text {\n      display: inline-block;\n      transition: transform 0.15s ease;\n    }\n\n    .generate-html-btn > .standard-text {\n      transform: translateY(0);\n    }\n\n    .generate-html-btn > .active-text {\n      position: absolute;\n      top: 50%;\n      left: 50%;\n      max-width: 100%;\n      transform: translate(-50%, calc(-50% + 23.66px));\n    }\n\n    .generate-html-btn.custom-active {\n      pointer-events: none;\n    }\n    \n    .generate-html-btn.custom-active > .standard-text {\n      transform: translateY(-23.66px);\n    }\n\n    .generate-html-btn.custom-active > .active-text {\n      transform: translate(-50%, -50%);\n    }\n";
     document.head.insertAdjacentHTML("beforeend", "<style>".concat(styles, "</style>"));
   };
+  var escapeHtml = function escapeHtml(unsafe) {
+    return unsafe.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+  };
   var createMessage = function createMessage(configsEls, name) {
     var string = "";
     var content = "";
@@ -64,7 +67,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       if (!checkbox.checked) return content;
       var key = (_configsEl$querySelec = configsEl.querySelector(SELECTORS.keyInput)) === null || _configsEl$querySelec === void 0 ? void 0 : _configsEl$querySelec.value;
       var value = (_configsEl$querySelec2 = configsEl.querySelector(SELECTORS.valueInput)) === null || _configsEl$querySelec2 === void 0 ? void 0 : _configsEl$querySelec2.value;
-      content += "<li><strong>".concat(key, "</strong>: ").concat(value, "</li>");
+      content += "<li><strong>".concat(key, "</strong>: ").concat(escapeHtml(value), "</li>");
     });
     if (content) {
       string = "<ul><li>Add ".concat(name, ":<ul>").concat(content, "</ul></li></ul>");
