@@ -113,7 +113,7 @@
     const messages = modal.querySelectorAll(SELECTORS.messagesRow);
     const settings = modal.querySelectorAll(SELECTORS.settingsRow);
 
-    let messageText = `<span><strong>${componentName}</strong> box:</span>`;
+    let messageText = `<span>Add <strong>${componentName}</strong> system box:</span>`;
 
     messageText += createMessage(messages, "messages");
     messageText += createMessage(settings, "settings");

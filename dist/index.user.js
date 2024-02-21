@@ -5,7 +5,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // ==UserScript==
 // @name         CMS Messages/Settings Template Generator
 // @namespace    https://github.com/lukasz-brzozko/jira-cms-config-generator
-// @version      2024-02-19
+// @version      2024-02-21
 // @description  Generates HTML template from the CMS messages/settings and copies it into the clipboard
 // @author       Łukasz Brzózko
 // @match        https://dev-control-panel-orbico.nd0.pl/*
@@ -78,7 +78,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var componentName = _ref.componentName;
     var messages = modal.querySelectorAll(SELECTORS.messagesRow);
     var settings = modal.querySelectorAll(SELECTORS.settingsRow);
-    var messageText = "<span><strong>".concat(componentName, "</strong> box:</span>");
+    var messageText = "<span>Add <strong>".concat(componentName, "</strong> system box:</span>");
     messageText += createMessage(messages, "messages");
     messageText += createMessage(settings, "settings");
     return messageText;
